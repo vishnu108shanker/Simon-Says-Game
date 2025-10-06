@@ -1,135 +1,113 @@
-(() => {
-  // ---------- Config / State ----------
-  const FLASH_DURATION = 500; // ms
-  const BUTTON_COUNT = 4;
+ let start = document.querySelector("#start") ;
+let begin1 = document.querySelector("#begin")
+//  let btn1 = document.querySelector("#button1") ;
+//  let btn2= document.querySelector("#button2") ;
+//  let btn3 = document.querySelector("#button3") ;
+//  let btn4 = document.querySelector("#button4") ;
+    let button = document.querySelectorAll(".button") ;
 
-  const startBtn = document.querySelector("#start");
-  const statusEl = document.querySelector("#begin");
-  const buttons = Array.from(document.querySelectorAll(".button")); // NodeList -> Array
+                                  let game = [] ;
+                                  let userGame = [] ;
+                                  let level = 0 ;
+                                  let started = false ;
 
-  let sequence = [];      // full game sequence (ids)
-  let userSequence = [];  // current user input for this level
-  let level = 0;
-  let playing = false;    // true when the game is active
-  let isPlayingBack = false; // true while the game is flashing the sequence
 
-  // ---------- Helpers ----------
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+let btncolor = ["red" , "blue" , "green" , "yellow"] ;
 
-  const getRandomButtonId = () => {
-    // returns "button1" .. "button4"
-    const idx = Math.floor(Math.random() * BUTTON_COUNT) + 1;
-    return `button${idx}`;
-  };
 
-  const setStatus = (html) => {
-    statusEl.innerHTML = html;
-  };
 
-  const enableUserInput = (enable) => {
-    buttons.forEach((btn) => (btn.disabled = !enable));
-  };
 
-  // ---------- Visual flash helpers ----------
-  const flashButton = async (btnEl, className = "btnFlash") => {
-    btnEl.classList.add(className);
-    await sleep(FLASH_DURATION);
-    btnEl.classList.remove(className);
-  };
+// game starts here with start button 
+ start.addEventListener("click" , function(){
+if (started == false) {
+        console.log("start was clicked")
+    let begin = document.createElement("p") ;
+    begin.textContent= "the game begins" ;
+  begin1.append(begin) ;
+            }
+started = true ;
 
-  const flashButtonById = async (id, className = "btnFlash") => {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    await flashButton(btn, className);
-  };
+levelUp() ;
+ })
+// the display value of lavel is increased by 1 with every click of start button
 
-  // ---------- Game flow ----------
-  const startGame = async () => {
-    if (playing) return; // ignore if already started
-    playing = true;
-    level = 0;
-    sequence = [];
-    setStatus("<h1>Game starts — good luck!</h1>");
-    startBtn.textContent = "Restart";
-    await nextLevel();
-  };
 
-  const nextLevel = async () => {
-    userSequence = [];
-    level += 1;
-    setStatus(`<h1>Level ${level}</h1>`);
+// created the levelup functionn to increase the level and flash a random button
+ function levelUp() {
+  userGame = [] ; // reset the user game array
+    level++ ;
+    begin1.innerHTML = "<h1> level is level-" + level + "</h1>" ;
+    
+      let randomIndex = Math.floor(Math.random() * 4 ) +1 ;
+     let selectedButton = document.querySelector(`#button${randomIndex}`);
 
-    // add new random button to sequence and play entire sequence
-    sequence.push(getRandomButtonId());
-    await playSequence();
-  };
-
-  const playSequence = async () => {
-    isPlayingBack = true;
-    enableUserInput(false);
-
-    // Play each id in sequence with a short interval
-    for (const id of sequence) {
-      await flashButtonById(id, "btnFlash");
-      await sleep(200); // small gap between flashes
+     btnFlash(selectedButton);
     }
 
-    isPlayingBack = false;
-    enableUserInput(true);
-  };
+    
+// creted the btn flash function to flash the button when the game starts
+ function btnFlash(buttn){
+     buttn.classList.add("btnFlash") ;
+  setTimeout(function() {
+    buttn.classList.remove("btnFlash") ;
+  }, 500) ; 
+  console.log(buttn.id + " was flashed") ;
+  game.push(buttn.id) ;
+  console.log(game) ;
+}
 
-  const handleUserClick = async (evt) => {
-    if (!playing || isPlayingBack) return;
 
-    const btn = evt.currentTarget;
-    const id = btn.id;
-    // Visual feedback for user press
-    await flashButton(btn, "userbtnFlash");
+// created the checkAns function to check if the user has pressed the correct button
+function checkAns(){
+  let idx = userGame.length - 1 ;
+  if(userGame[idx] === game[idx]){
+    if(userGame.length == game.length){
+    console.log("You are promoted to the next level") ;
+    levelUp() ;
+  }}
+  else{
+    begin1.innerHTML = `<h3>Game over , Your score was <h2>${level-1}</h2> <br> Click Start to play again</h3>` ;
+    setTimeout(resetGame() , 1000) ; // reset the game after 1 second
+  }
+}
 
-    userSequence.push(id);
-    checkAnswer();
-  };
 
-  const checkAnswer = () => {
-    const lastIndex = userSequence.length - 1;
+// created the btnpresed functionn
+function btnpresed(){
+  console.log(this.id + " was pressed") ;
+  userGame.push(this.id) ;
+  console.log(userGame) ;
 
-    // Wrong selection
-    if (userSequence[lastIndex] !== sequence[lastIndex]) {
-      gameOver();
-      return;
-    }
+  checkAns() ;
+}
 
-    // If user finished the sequence for this level, go to next level
-    if (userSequence.length === sequence.length) {
-      // small delay so user sees final success flash
-      setTimeout(() => nextLevel(), 700);
-    }
-  };
 
-  const gameOver = () => {
-    enableUserInput(false);
-    playing = false;
-    isPlayingBack = false;
-    setStatus(
-      `<h3>Game over — your score: <strong>${level - 1}</strong></h3>
-       <p>Click Start to play again</p>`
-    );
-    startBtn.textContent = "Start";
-    // Reset state so user can restart
-    sequence = [];
-    userSequence = [];
-    level = 0;
-  };
+// created the userbtnFlash function to flash the button when user clicks on it
+ function userbtnFlash(buttn){
+     buttn.classList.add("userbtnFlash") ;
+  setTimeout(function() {
+    buttn.classList.remove("userbtnFlash") ;
+  }, 500) ; 
+}
 
-  // ---------- Event listeners ----------
-  startBtn.addEventListener("click", startGame);
+// added event listener to the buttons
+for(let i =0 ; i<4 ; i++){
+  button[i].addEventListener("click" , btnpresed) ;
+  button[i].addEventListener("click" , function() {
+    userbtnFlash(button[i]) ;
+  }) ;
+}
 
-  // Add click listeners to each color button
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", handleUserClick);
-  });
 
-  // initialize view
-  enableUserInput(false);
-  setStatus("<h1>Click Start to play</h1>");
-})();
+
+function resetGame() { 
+  game = [];
+  userGame = [];
+  level = 0;
+  started = false;
+begin1.innerHTML = "<h1>Click Start to play</h1>" ;
+  console.log("Game has been reset") ;
+  start.textContent = "Start Again" ; // reset the start button text
+  
+}
+ 
