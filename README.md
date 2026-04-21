@@ -31,14 +31,6 @@ each level gets trickier and faster! 🔥
 - **Vanilla JavaScript (ES6)** for logic and interactivity  
 
 ---
-
-## 🚀 **Live Demo**
-🔗 [Play Simon Says Game Here](https://<your-username>.github.io/Simon-Says-Game/)
-
-*(Replace `<your-username>` with your GitHub username)*
-
----
-
 ## 📷 **Preview**
 *(Add a screenshot if you want)*  
 You can take a screenshot of your game and name it `preview.png`,  
