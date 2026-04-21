@@ -30,10 +30,4 @@ each level gets trickier and faster! 🔥
 - **CSS3** for styling and animations  
 - **Vanilla JavaScript (ES6)** for logic and interactivity  
 
----
-## 📷 **Preview**
-*(Add a screenshot if you want)*  
-You can take a screenshot of your game and name it `preview.png`,  
-then add this line here:
-```markdown
-![Game Preview](preview.png)
+
